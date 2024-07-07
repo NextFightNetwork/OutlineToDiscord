@@ -14,5 +14,12 @@
 
 # Build & publish docker image
 
-`docker build -t outlinewebhookbridge:latest -t ghcr.io/nextfightnetwork/outlinewebhookbridge:latest .`
-`docker push ghcr.io/nextfightnetwork/outlinewebhookbridge:latest`
+Build
+```
+docker build -t outlinewebhookbridge:latest -t ghcr.io/nextfightnetwork/outlinewebhookbridge:latest .
+```
+
+Publish
+```
+docker push ghcr.io/nextfightnetwork/outlinewebhookbridge:latest
+```
