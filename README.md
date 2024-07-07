@@ -12,4 +12,7 @@
 2. Run `npm install`
 3. Run `npm run start`
 
+# Build & publish docker image
 
+`docker build -t outlinewebhookbridge:latest -t ghcr.io/nextfightnetwork/outlinewebhookbridge:latest .`
+`docker push ghcr.io/nextfightnetwork/outlinewebhookbridge:latest`
