@@ -25,9 +25,6 @@ app.post("/outline-webhook", async (req, res) => {
     case "documents.update":
       embedData = createUpdateEmbed(payload);
       break;
-    case "views.create":
-      embedData = createViewEmbed(payload);
-      break;
     case "webhookSubscriptions.update":
       embedData = createWebhookSubscriptionEmbed(payload);
       break;
@@ -133,26 +130,6 @@ function createUpdateEmbed(payload) {
       },
     ],
     footer: { text: `Document ID: ${payload.model.id}` },
-  };
-}
-
-function createViewEmbed(payload) {
-  return {
-    title: "👀 Document Viewed",
-    color: 0x0000ff,
-    fields: [
-      { name: "Viewed By", value: payload.model.user.name },
-      { name: "View Count", value: payload.model.count.toString() },
-      {
-        name: "First Viewed At",
-        value: new Date(payload.model.firstViewedAt).toLocaleString(),
-      },
-      {
-        name: "Last Viewed At",
-        value: new Date(payload.model.lastViewedAt).toLocaleString(),
-      },
-    ],
-    footer: { text: `Document ID: ${payload.model.documentId}` },
   };
 }
 
