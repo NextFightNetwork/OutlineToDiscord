@@ -4,7 +4,7 @@
 
 # Installation
 
-1. Create `.env` file with the following content
+1. Create `.env` file with the following content (If you are not using Docker)
   ```
   DISCORD_WEBHOOK=""
   PORT="3123"
