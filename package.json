@@ -1,0 +1,15 @@
+{
+  "name": "outlinewebhookbridge",
+  "version": "1.0.0",
+  "description": "A bridge for webhooks between outline and github",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "author": "MaximDe",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}
