@@ -8,6 +8,8 @@
   ```
   DISCORD_WEBHOOK=""
   PORT="3123"
+  OUTLINE_URL="https://outline.example.com"
+  OUTLINE_API_KEY=""
   ```
 2. Run `npm install`
 3. Run `npm run start`
