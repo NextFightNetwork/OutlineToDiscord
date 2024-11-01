@@ -55,6 +55,19 @@ app.post("/outline-webhook", async (req, res) => {
     case "documents.archive":
       embedData = createDocumentArchiveEmbed(payload);
       break;
+    case "comments.create":
+      const documentDetails = await getDocumentDetails(payload.model.documentId);
+      embedData = createCommentEmbed(payload, documentDetails);
+      break;
+    case "comments.delete":
+      const deletedDocumentDetails = await getDocumentDetails(payload.model.documentId);
+      embedData = createCommentDeleteEmbed(payload, deletedDocumentDetails);
+      break;
+    case "comments.update":
+      const updatedDocumentDetails = await getDocumentDetails(payload.model.documentId);
+      embedData = createCommentUpdateEmbed(payload, updatedDocumentDetails);
+      break;
+
     default:
       console.log(
         "Unsupported event:",
@@ -271,6 +284,73 @@ function createDocumentArchiveEmbed(payload) {
     footer: { text: `Document ID: ${payload.model.id}` },
   };
 }
+
+function createCommentEmbed(payload, documentDetails) {
+  return {
+    title: "💬 New Comment",
+    color: 0x1e90ff,
+    fields: [
+      { name: "Comment", value: payload.model.data.content[0].content[0].text },
+      { name: "Commented By", value: payload.model.createdBy.name },
+      { name: "Document Title", value: documentDetails.title },
+      { name: "Document Link", value: `${process.env.OUTLINE_URL}${documentDetails.url}` // Link to the document
+      },
+    ],
+    footer: { name: "Created At", value: new Date(payload.model.createdAt).toLocaleString() },
+  };
+}
+
+function createCommentDeleteEmbed(payload, documentDetails) {
+  return {
+    title: "🗑️ Comment Deleted",
+    color: 0xff0000,
+    fields: [
+      { name: "Deleted By", value: payload.model.createdBy.name },
+      { name: "Document Title", value: documentDetails.title },
+      { name: "Document Link", value: `${process.env.OUTLINE_URL}${documentDetails.url}` },
+    ],
+    footer: { text: `Comment ID: ${payload.model.id} - Deleted At: ${new Date().toLocaleString()}` },
+  };
+}
+
+function createCommentUpdateEmbed(payload, documentDetails) {
+  return {
+    title: "✏️ Comment Updated",
+    color: 0x1e90ff,
+    fields: [
+      { name: "Updated Comment", value: payload.model.data.content[0].content[0].text },
+      { name: "Updated By", value: payload.model.createdBy.name },
+      { name: "Document Title", value: documentDetails.title },
+      { name: "Document Link", value: `${process.env.OUTLINE_URL}${documentDetails.url}` },
+    ],
+    footer: { text: `Comment ID: ${payload.model.id} - Updated At: ${new Date(payload.model.updatedAt).toLocaleString()}` },
+  };
+}
+
+
+async function getDocumentDetails(documentId) {
+  try {
+    const response = await axios.post(
+        `${process.env.OUTLINE_URL}/api/documents.info`,
+        { id: documentId },
+        {
+          headers: { Authorization: `Bearer ${process.env.OUTLINE_API_KEY}` },
+        }
+    );
+
+    const document = response.data.data;
+    return {
+      title: document.title,
+      url: document.url,
+    };
+  } catch (error) {
+    console.error("Error fetching document details:", error);
+    return { title: "Unknown Document", url: "#" };
+  }
+}
+
+
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
