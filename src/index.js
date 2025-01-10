@@ -11,12 +11,12 @@ const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK;
 const PORT = process.env.PORT || 3123;
 const INCLUDE_COLLECTIONS = (process.env.INCLUDE_COLLECTIONS || "").split(',');
 
-// console.log("Allowed Collections: " + INCLUDE_COLLECTIONS);
+console.log("Allowed Collections: " + INCLUDE_COLLECTIONS);
 
 app.post("/outline-webhook", async (req, res) => {
   const { event, payload } = req.body;
 
-  if ( INCLUDE_COLLECTIONS[0] && INCLUDE_COLLECTIONS[0] > 1 ) { // I hope this is strong enough error handling 
+  if ( INCLUDE_COLLECTIONS[0].length > 1 ) { // I hope this is strong enough error handling 
     const documentCollection = await getDocumentCollection(payload.model.documentId);	  
     if (!INCLUDE_COLLECTIONS.includes(documentCollection)) {
       console.log("Skipping Comment");
