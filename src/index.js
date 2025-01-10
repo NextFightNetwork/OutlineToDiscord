@@ -9,9 +9,20 @@ app.use(express.json());
 
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK;
 const PORT = process.env.PORT || 3123;
+const INCLUDE_COLLECTIONS = process.env.INCLUDE_COLLECTIONS.split(',');
+
+// console.log("Allowed Collections: " + INCLUDE_COLLECTIONS);
 
 app.post("/outline-webhook", async (req, res) => {
   const { event, payload } = req.body;
+
+  if (INCLUDE_COLLECTIONS.length > 0) { // I hope this is strong enough error handling 
+    const documentCollection = await getDocumentCollection(payload.model.documentId);	  
+    if (!INCLUDE_COLLECTIONS.includes(documentCollection)) {
+      console.log("Skipping Comment");
+      return res.sendStatus(200);
+    }
+  } 
 
   let embedData;
 
@@ -56,16 +67,16 @@ app.post("/outline-webhook", async (req, res) => {
       embedData = createDocumentArchiveEmbed(payload);
       break;
     case "comments.create":
-      const documentDetails = await getDocumentDetails(payload.model.documentId);
-      embedData = createCommentEmbed(payload, documentDetails);
+      const documentCreateDetails = await getDocumentDetails(payload.model.documentId);
+      embedData = createCommentEmbed(payload, documentCreateDetails);
       break;
     case "comments.delete":
-      const deletedDocumentDetails = await getDocumentDetails(payload.model.documentId);
-      embedData = createCommentDeleteEmbed(payload, deletedDocumentDetails);
+      const documentDeleteDetails = await getDocumentDetails(payload.model.documentId);
+      embedData = createCommentDeleteEmbed(payload, documentDeleteDetails);
       break;
     case "comments.update":
-      const updatedDocumentDetails = await getDocumentDetails(payload.model.documentId);
-      embedData = createCommentUpdateEmbed(payload, updatedDocumentDetails);
+      const documentUpdateDetails = await getDocumentDetails(payload.model.documentId);
+      embedData = createCommentUpdateEmbed(payload, documentUpdateDetails);
       break;
 
     default:
@@ -349,6 +360,22 @@ async function getDocumentDetails(documentId) {
   }
 }
 
+async function getDocumentCollection(documentId) {
+  try {
+    const response = await axios.post(
+        `${process.env.OUTLINE_URL}/api/documents.info`,
+        { id: documentId },
+        {
+          headers: { Authorization: `Bearer ${process.env.OUTLINE_API_KEY}` },
+        }
+    );
+
+    return response.data.data.collectionId;
+  } catch (error) {
+    console.error("Error fetching document collectionId:", error);
+    return { title: "Unknown Document", url: "#" };
+  }
+}
 
 
 
